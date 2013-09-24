@@ -120,8 +120,11 @@ typedef void (^RESTRequestCompletion) (RESTResponse* response);
 @property BOOL allowSelfSignedCertificates;
 
 + (NSString*) urlEncode:(NSString*)value;
++ (NSString*) urlDecode:(NSString*)encoded;
 + (NSString*) dataAsHexString:(NSData *)data;
 + (NSString*) objectAsJsonString:(id)jsonObject;
++ (NSDictionary*) queryParametersAsDictionary:(NSString*)queryString;
++ (NSString*) dictionaryAsQueryString:(NSString*)queryString;
 
 - (RESTRequest*)request:(NSString *)httpMethod
             url:(NSString *)url

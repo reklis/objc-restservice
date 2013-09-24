@@ -35,6 +35,11 @@
             stringByReplacingOccurrencesOfString:@"@" withString:@"%40"];
 }
 
++ (NSString*) urlDecode:(NSString *)encoded
+{
+    return [encoded stringByReplacingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
+}
+
 + (NSString *)objectAsJsonString:(id)jsonObject
 {
     NSError* error = nil;
@@ -45,6 +50,50 @@
         return [[NSString alloc] initWithData:serialized encoding:NSUTF8StringEncoding];
     }
 }
+
++ (NSString*) dictionaryAsQueryString:(NSDictionary*)parameters {
+    // adapted from
+    // http://stackoverflow.com/questions/3997976
+
+    if ([parameters count] == 0) {
+        return nil;
+    }
+    
+    NSMutableString* query = [NSMutableString string];
+    for (NSString* parameter in [parameters allKeys]) {
+        NSString* key = [self urlEncode:parameter];
+        NSString* value = [self urlEncode:[parameters objectForKey:parameter]];
+        
+        [query appendString:((0 == [query length]) ? @"?" : @"&")];
+        [query appendFormat:@"%@=%@", key, value];
+    }
+    
+    return [query substringFromIndex:1];
+}
+
++ (NSDictionary*)queryParametersAsDictionary:(NSString*)query {
+    if ([query length] == 0) {
+        return nil;
+    }
+    
+    NSMutableDictionary* parameters = [NSMutableDictionary dictionary];
+    
+    for (NSString* parameter in [query componentsSeparatedByString:@"&"]) {
+        NSRange range = [parameter rangeOfString:@"="];
+        
+        if (range.location != NSNotFound) {
+            NSString* value = [self urlDecode:[parameter substringFromIndex:range.location+range.length]];
+            NSString* key = [self urlDecode:[parameter substringToIndex:range.location]];
+            [parameters setObject:value forKey:key];
+        } else {
+            NSString* key = [self urlDecode:parameter];
+            [parameters setObject:@"" forKey:key];
+        }
+    }
+    
+    return parameters;
+}
+
 
 - (RESTRequest*) request:(NSString *)httpMethod
             url:(NSString *)url
