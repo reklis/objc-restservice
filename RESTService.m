@@ -179,6 +179,8 @@
     if (self.allowSelfSignedCertificates) {
         NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
         [challenge.sender useCredential:credential forAuthenticationChallenge:challenge];
+    } else {
+        [challenge.sender performDefaultHandlingForAuthenticationChallenge:challenge];
     }
 }
 
